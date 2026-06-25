@@ -30,6 +30,9 @@ namespace kondrat
   bool parseArgs(int argc, char ** argv, ProgramArgs & args);
   void initStorage(PersonStorage & storage);
   void destroyStorage(PersonStorage & storage);
+  bool isSpace(char value);
+  bool isDigit(char value);
+  bool parsePerson(const std::string & line, Person & person);
   size_t nextCapacity(size_t capacity);
   void reserve(PersonStorage & storage, size_t capacity);
   void pushBack(PersonStorage & storage, const Person & person);
@@ -98,6 +101,59 @@ void kondrat::destroyStorage(PersonStorage & storage)
   storage.data = nullptr;
   storage.size = 0;
   storage.capacity = 0;
+}
+
+bool kondrat::isSpace(char value)
+{
+  return value == ' ';
+}
+
+bool kondrat::isDigit(char value)
+{
+  return value >= '0' && value <= '9';
+}
+
+bool kondrat::parsePerson(const std::string & line, Person & person)
+{
+  size_t first = 0;
+  while (first < line.size() && isSpace(line[first]))
+  {
+    ++first;
+  }
+  if (first == line.size() || !isDigit(line[first]))
+  {
+    return false;
+  }
+
+  size_t id = 0;
+  while (first < line.size() && isDigit(line[first]))
+  {
+    const size_t digit = static_cast< size_t >(line[first] - '0');
+    if (id > (std::numeric_limits< size_t >::max() - digit) / 10)
+    {
+      return false;
+    }
+    id = id * 10 + digit;
+    ++first;
+  }
+
+  size_t afterId = first;
+  if (afterId < line.size() && !isSpace(line[afterId]))
+  {
+    return false;
+  }
+  while (afterId < line.size() && isSpace(line[afterId]))
+  {
+    ++afterId;
+  }
+  if (afterId == line.size())
+  {
+    return false;
+  }
+
+  person.id = id;
+  person.info = line.substr(afterId);
+  return true;
 }
 
 size_t kondrat::nextCapacity(size_t capacity)
