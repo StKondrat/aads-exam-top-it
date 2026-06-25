@@ -46,6 +46,10 @@ namespace kondrat
   void reserve(Storage< T > & storage, size_t capacity);
   template< class T >
   void pushBack(Storage< T > & storage, const T & value);
+  bool isBlank(const std::string & line);
+  bool parsePerson(const std::string & line, Person & person);
+  bool containsPerson(const PersonStorage & storage, size_t id);
+  void readPersons(std::istream & input, PersonStorage & storage);
 }
 
 bool kondrat::parseArgs(int argc, char ** argv, ProgramArgs & args)
@@ -136,6 +140,83 @@ void kondrat::pushBack(Storage< T > & storage, const T & value)
 
   storage.data[storage.size] = value;
   ++storage.size;
+}
+
+bool kondrat::isBlank(const std::string & line)
+{
+  for (size_t i = 0; i < line.size(); ++i)
+  {
+    if (!isSpace(line[i]))
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool kondrat::parsePerson(const std::string & line, Person & person)
+{
+  size_t first = 0;
+  while (first < line.size() && isSpace(line[first]))
+  {
+    ++first;
+  }
+
+  size_t id = 0;
+  if (!readSizeT(line, first, id))
+  {
+    return false;
+  }
+
+  size_t afterId = first;
+  if (afterId < line.size() && !isSpace(line[afterId]))
+  {
+    return false;
+  }
+  while (afterId < line.size() && isSpace(line[afterId]))
+  {
+    ++afterId;
+  }
+  if (afterId == line.size())
+  {
+    return false;
+  }
+
+  person.id = id;
+  person.info = line.substr(afterId);
+  person.described = true;
+  return true;
+}
+
+bool kondrat::containsPerson(const PersonStorage & storage, size_t id)
+{
+  for (size_t i = 0; i < storage.size; ++i)
+  {
+    if (storage.data[i].id == id)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+void kondrat::readPersons(std::istream & input, PersonStorage & storage)
+{
+  std::string line;
+  while (std::getline(input, line))
+  {
+    if (isBlank(line))
+    {
+      continue;
+    }
+
+    Person person = {};
+    if (!parsePerson(line, person) || containsPerson(storage, person.id))
+    {
+      continue;
+    }
+    pushBack(storage, person);
+  }
 }
 
 int main(int argc, char ** argv)
