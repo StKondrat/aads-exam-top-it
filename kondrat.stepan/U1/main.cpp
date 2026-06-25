@@ -38,6 +38,7 @@ namespace kondrat
   void reserve(PersonStorage & storage, size_t capacity);
   void pushBack(PersonStorage & storage, const Person & person);
   void readPersons(std::istream & input, PersonStorage & storage, size_t & ignored);
+  void printPersons(std::ostream & output, const PersonStorage & storage);
 }
 
 bool kondrat::startsWith(const char * value, const char * prefix)
@@ -176,6 +177,10 @@ size_t kondrat::nextCapacity(size_t capacity)
   {
     return 8;
   }
+  if (capacity > std::numeric_limits< size_t >::max() / 2)
+  {
+    throw std::overflow_error("storage capacity overflow");
+  }
   return capacity * 2;
 }
 
@@ -228,6 +233,14 @@ void kondrat::readPersons(std::istream & input, PersonStorage & storage, size_t 
       continue;
     }
     pushBack(storage, person);
+  }
+}
+
+void kondrat::printPersons(std::ostream & output, const PersonStorage & storage)
+{
+  for (size_t i = 0; i < storage.size; ++i)
+  {
+    output << storage.data[i].id << ' ' << storage.data[i].info << '\n';
   }
 }
 
