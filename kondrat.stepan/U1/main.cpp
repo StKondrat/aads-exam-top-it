@@ -21,7 +21,24 @@ namespace kondrat
     const char * inputName;
     const char * outputName;
   };
+
+  bool startsWith(const char * value, const char * prefix);
+  bool parseArgs(int argc, char ** argv, ProgramArgs & args);
 }
 
-int main()
+bool kondrat::startsWith(const char * value, const char * prefix)
+{
+  while (*prefix != '\0')
+  {
+    if (*value != *prefix)
+    {
+      return false;
+    }
+    ++value;
+    ++prefix;
+  }
+  return true;
+}
+
+int main(int argc, char ** argv)
 {}
