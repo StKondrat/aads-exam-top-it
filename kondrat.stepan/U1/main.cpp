@@ -1,9 +1,8 @@
 #include <cstddef>
 #include <fstream>
 #include <iostream>
-#include <limits>
-#include <stdexcept>
 #include <string>
+#include <utils.hpp>
 
 namespace kondrat
 {
@@ -26,33 +25,15 @@ namespace kondrat
     const char * output;
   };
 
-  bool startsWith(const char * value, const char * prefix);
   bool parseArgs(int argc, char ** argv, ProgramArgs & args);
   void initStorage(PersonStorage & storage);
   void destroyStorage(PersonStorage & storage);
-  bool isSpace(char value);
-  bool isDigit(char value);
   bool parsePerson(const std::string & line, Person & person);
   bool containsId(const PersonStorage & storage, size_t id);
-  size_t nextCapacity(size_t capacity);
   void reserve(PersonStorage & storage, size_t capacity);
   void pushBack(PersonStorage & storage, const Person & person);
   void readPersons(std::istream & input, PersonStorage & storage, size_t & ignored);
   void printPersons(std::ostream & output, const PersonStorage & storage);
-}
-
-bool kondrat::startsWith(const char * value, const char * prefix)
-{
-  while (*prefix != '\0')
-  {
-    if (*value != *prefix)
-    {
-      return false;
-    }
-    ++value;
-    ++prefix;
-  }
-  return true;
 }
 
 bool kondrat::parseArgs(int argc, char ** argv, ProgramArgs & args)
@@ -106,16 +87,6 @@ void kondrat::destroyStorage(PersonStorage & storage)
   storage.capacity = 0;
 }
 
-bool kondrat::isSpace(char value)
-{
-  return value == ' ';
-}
-
-bool kondrat::isDigit(char value)
-{
-  return value >= '0' && value <= '9';
-}
-
 bool kondrat::parsePerson(const std::string & line, Person & person)
 {
   size_t first = 0;
@@ -123,21 +94,10 @@ bool kondrat::parsePerson(const std::string & line, Person & person)
   {
     ++first;
   }
-  if (first == line.size() || !isDigit(line[first]))
+  size_t id = 0;
+  if (!readSizeT(line, first, id))
   {
     return false;
-  }
-
-  size_t id = 0;
-  while (first < line.size() && isDigit(line[first]))
-  {
-    const size_t digit = static_cast< size_t >(line[first] - '0');
-    if (id > (std::numeric_limits< size_t >::max() - digit) / 10)
-    {
-      return false;
-    }
-    id = id * 10 + digit;
-    ++first;
   }
 
   size_t afterId = first;
@@ -169,19 +129,6 @@ bool kondrat::containsId(const PersonStorage & storage, size_t id)
     }
   }
   return false;
-}
-
-size_t kondrat::nextCapacity(size_t capacity)
-{
-  if (capacity == 0)
-  {
-    return 8;
-  }
-  if (capacity > std::numeric_limits< size_t >::max() / 2)
-  {
-    throw std::overflow_error("storage capacity overflow");
-  }
-  return capacity * 2;
 }
 
 void kondrat::reserve(PersonStorage & storage, size_t capacity)
