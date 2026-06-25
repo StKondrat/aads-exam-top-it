@@ -18,7 +18,7 @@ bool kondrat::startsWith(const char * value, const char * prefix)
 
 bool kondrat::isSpace(char value)
 {
-  return value == ' ';
+  return value == ' ' || value == '\t' || value == '\v' || value == '\f' || value == '\r';
 }
 
 bool kondrat::isDigit(char value)

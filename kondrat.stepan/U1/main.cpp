@@ -28,6 +28,7 @@ namespace kondrat
   bool parseArgs(int argc, char ** argv, ProgramArgs & args);
   void initStorage(PersonStorage & storage);
   void destroyStorage(PersonStorage & storage);
+  bool isBlank(const std::string & line);
   bool parsePerson(const std::string & line, Person & person);
   bool containsId(const PersonStorage & storage, size_t id);
   void reserve(PersonStorage & storage, size_t capacity);
@@ -85,6 +86,18 @@ void kondrat::destroyStorage(PersonStorage & storage)
   storage.data = nullptr;
   storage.size = 0;
   storage.capacity = 0;
+}
+
+bool kondrat::isBlank(const std::string & line)
+{
+  for (size_t i = 0; i < line.size(); ++i)
+  {
+    if (!isSpace(line[i]))
+    {
+      return false;
+    }
+  }
+  return true;
 }
 
 bool kondrat::parsePerson(const std::string & line, Person & person)
@@ -173,6 +186,11 @@ void kondrat::readPersons(std::istream & input, PersonStorage & storage, size_t 
   std::string line;
   while (std::getline(input, line))
   {
+    if (isBlank(line))
+    {
+      continue;
+    }
+
     Person person = {};
     if (!parsePerson(line, person) || containsId(storage, person.id))
     {
