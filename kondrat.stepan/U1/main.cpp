@@ -33,9 +33,11 @@ namespace kondrat
   bool isSpace(char value);
   bool isDigit(char value);
   bool parsePerson(const std::string & line, Person & person);
+  bool containsId(const PersonStorage & storage, size_t id);
   size_t nextCapacity(size_t capacity);
   void reserve(PersonStorage & storage, size_t capacity);
   void pushBack(PersonStorage & storage, const Person & person);
+  void readPersons(std::istream & input, PersonStorage & storage, size_t & ignored);
 }
 
 bool kondrat::startsWith(const char * value, const char * prefix)
@@ -156,6 +158,18 @@ bool kondrat::parsePerson(const std::string & line, Person & person)
   return true;
 }
 
+bool kondrat::containsId(const PersonStorage & storage, size_t id)
+{
+  for (size_t i = 0; i < storage.size; ++i)
+  {
+    if (storage.data[i].id == id)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
 size_t kondrat::nextCapacity(size_t capacity)
 {
   if (capacity == 0)
@@ -200,6 +214,21 @@ void kondrat::pushBack(PersonStorage & storage, const Person & person)
 
   storage.data[storage.size] = person;
   ++storage.size;
+}
+
+void kondrat::readPersons(std::istream & input, PersonStorage & storage, size_t & ignored)
+{
+  std::string line;
+  while (std::getline(input, line))
+  {
+    Person person = {};
+    if (!parsePerson(line, person) || containsId(storage, person.id))
+    {
+      ++ignored;
+      continue;
+    }
+    pushBack(storage, person);
+  }
 }
 
 int main(int argc, char ** argv)
