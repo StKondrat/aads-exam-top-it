@@ -267,6 +267,7 @@ int main(int argc, char ** argv)
     if (storage.size == 0 && ignored == 0)
     {
       *output << '\n';
+      std::cerr << storage.size << ' ' << ignored << '\n';
     }
     else
     {
